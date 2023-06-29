@@ -10,6 +10,7 @@
     },
     "license": "MIT",
     "devDependencies": {
+        "@types/semver": "^7.5.0",
         "autoprefixer": "^10.4.14",
         "postcss": "^8.4.24",
         "solid-devtools": "^0.27.3",
@@ -20,6 +21,7 @@
     },
     "dependencies": {
         "daisyui": "^3.1.7",
+        "semver": "^7.5.3",
         "solid-js": "^1.7.6"
     }
 }
