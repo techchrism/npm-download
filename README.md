@@ -1,3 +1,7 @@
+# NPM Download
+
+A project to simplify the process of manually downloading a package from npm.
+
 ## Usage
 
 Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
