@@ -5,11 +5,11 @@ const config: Config = {
         './index.html',
         './src/**/*.{js,ts,jsx,tsx,css,md,mdx,html,json,scss}',
     ],
-    darkMode: 'class',
+    darkMode: 'media',
     theme: {
         extend: {},
     },
-    plugins: [],
+    plugins: [require('daisyui')],
 };
 
 export default config;
