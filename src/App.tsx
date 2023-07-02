@@ -1,6 +1,7 @@
 import type {Component} from 'solid-js';
 import {createMemo, createResource, createSignal, Show} from 'solid-js'
 import semver from 'semver'
+import {LibraryVersion, loadAllDependencies} from './npmUtils'
 
 interface RegistryResponse {
     name: string
@@ -70,6 +71,18 @@ const App: Component = () => {
         setLibraryVersion(version ?? '')
     }
 
+    const loadRecursive = async () => {
+        const dependencies = foundVersion().dependencies ?? {}
+        const dependencyArr: LibraryVersion[] = Object.entries(dependencies).map(([name, version]) => ({name, version}))
+
+        const loaded = await loadAllDependencies([{
+            name: libraryID(),
+            version: foundVersion().version
+        }])
+        console.log(loaded)
+        window['loadedData'] = loaded
+    }
+
     return (
         <>
             <div class="py-20 text-center flex flex-col items-center">
@@ -82,6 +95,8 @@ const App: Component = () => {
                             {JSON.stringify(foundVersion(), null, 4)}
                         </pre>
                     </div>
+
+                    <button class="btn btn-success" onclick={loadRecursive}>Load Recursive</button>
                 </Show>
             </div>
         </>
@@ -89,4 +104,4 @@ const App: Component = () => {
     );
 };
 
-export default App;
+export default App
