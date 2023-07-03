@@ -28,17 +28,17 @@ const PackageSelectionStage: Component<PackageSelectionStageProps> = (props) => 
 
             const dependencies = loadDependencies('dependencies')
             if(dependencies.length > 0) {
-                newText.push('# Production dependencies\n' + dependencies.map(({name, version}) => `${name}@${version}`).join('\n'))
+                newText.push('# Production dependencies\n' + dependencies.map(({name, version}) => `${name} ${version}`).join('\n'))
             }
 
             const devDependencies = loadDependencies('devDependencies')
             if(devDependencies.length > 0) {
-                newText.push('# Development dependencies\n' + devDependencies.map(({name, version}) => `${name}@${version}`).join('\n'))
+                newText.push('# Development dependencies\n' + devDependencies.map(({name, version}) => `${name} ${version}`).join('\n'))
             }
 
             const optionalDependencies = loadDependencies('optionalDependencies')
             if(optionalDependencies.length > 0) {
-                newText.push('# Optional dependencies\n' + optionalDependencies.map(({name, version}) => `${name}@${version}`).join('\n'))
+                newText.push('# Optional dependencies\n' + optionalDependencies.map(({name, version}) => `${name} ${version}`).join('\n'))
             }
 
             if(newText.length === 0) setInputError('No dependencies found')
@@ -53,7 +53,7 @@ const PackageSelectionStage: Component<PackageSelectionStageProps> = (props) => 
         const dependencies = inputElement.value.split('\n')
             .filter(l => l.length > 0 && !l.startsWith('#'))
             .map(l => {
-                const parts = l.split('@')
+                const parts = l.split(' ')
                 return {name: parts[0], version: parts[1] ?? '*'}
             })
         props.onDependenciesChange(dependencies)
@@ -68,7 +68,7 @@ const PackageSelectionStage: Component<PackageSelectionStageProps> = (props) => 
                           onInput={onInput}
                           ref={inputElement}
                           class="textarea textarea-primary border-2 textarea-lg w-96 min-w-min h-48 resize"
-                          placeholder="library1\nlibrary2@version\n..."/>
+                          placeholder="library1\nlibrary2 version\n..."/>
 
                 <label class="btn btn-primary" for={fileInputID}>
                     <TbFileUpload />
