@@ -49,7 +49,7 @@ async function fetchLibrary(id: string): Promise<RegistryResponse> {
     return await response.json()
 }
 
-export async function loadDependenciesRecursive(dependent: LibraryVersion | 'root', dependencies: LibraryVersion[], loadedCache: LoadedCache) {
+export async function loadDependenciesRecursive(dependent: LibraryVersion | 'root', dependencies: LibraryVersion[], loadedCache: LoadedCache, dependencyListCallback?: (dependencies: LibraryVersion[]) => void) {
     for(const dependency of dependencies) {
         const loaded = await (async (): Promise<LoadedCache extends Map<any, infer I> ? I : never> => {
             const existingLoaded = loadedCache.get(dependency.name)
@@ -71,19 +71,31 @@ export async function loadDependenciesRecursive(dependent: LibraryVersion | 'roo
         if(existingDependency === undefined) {
             loaded.dependedBy.set(maxSatisfying, [dependent])
 
+            // Call callback
+            if(dependencyListCallback !== undefined) {
+                const dependencies = []
+                for(const [name, data] of loadedCache.entries()) {
+                    for(const [version, dependedBy] of data.dependedBy.entries()) {
+                        dependencies.push({name, version})
+                    }
+                }
+                dependencyListCallback(dependencies)
+            }
+
             // Load dependencies of this new version, excluding optional dependencies
             const dependencies = Object.entries(loaded.registry.versions[maxSatisfying].dependencies ?? {})
                 .map(([name, version]) => ({name, version}))
                 .filter(dep => loaded.registry.versions[maxSatisfying].optionalDependencies?.[dep.name] !== dep.version)
-            await loadDependenciesRecursive({name: dependency.name, version: maxSatisfying}, dependencies, loadedCache)
+            console.log(dependencies)
+            await loadDependenciesRecursive({name: dependency.name, version: maxSatisfying}, dependencies, loadedCache, dependencyListCallback)
         } else {
             existingDependency.push(dependent)
         }
     }
 }
 
-export async function loadAllDependencies(dependencies: LibraryVersion[]) {
+export async function loadAllDependencies(dependencies: LibraryVersion[], dependencyListCallback?: (dependencies: LibraryVersion[]) => void) {
     const loadedCache: LoadedCache = new Map()
-    await loadDependenciesRecursive('root', dependencies, loadedCache)
+    await loadDependenciesRecursive('root', dependencies, loadedCache, dependencyListCallback)
     return loadedCache
 }
