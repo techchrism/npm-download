@@ -24,6 +24,9 @@ devDependencies:
   solid-devtools:
     specifier: ^0.27.3
     version: 0.27.3(solid-js@1.7.6)(vite@4.3.9)
+  solid-icons:
+    specifier: ^1.0.9
+    version: 1.0.9(solid-js@1.7.6)
   tailwindcss:
     specifier: ^3.3.2
     version: 3.3.2
@@ -1474,6 +1477,15 @@ packages:
       vite: 4.3.9
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /solid-icons@1.0.9(solid-js@1.7.6):
+    resolution: {integrity: sha512-OyCO/bl93eGO1QziP52jHL4FeG6+EXSUeb3VNMbWASHu0pPViFd8mX6BdiMWKbWNOEuY6YsW6imeQFUG21ojrg==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      solid-js: '*'
+    dependencies:
+      solid-js: 1.7.6
     dev: true
 
   /solid-js@1.7.6:

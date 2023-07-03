@@ -2,6 +2,7 @@ import type {Component} from 'solid-js';
 import {createMemo, createResource, createSignal, Show} from 'solid-js'
 import semver from 'semver'
 import {LibraryVersion, loadAllDependencies} from './npmUtils'
+import PackageSelectionStage from './components/PackageSelectionStage'
 
 interface RegistryResponse {
     name: string
@@ -47,6 +48,7 @@ async function fetchLibraryLatest(id: string): Promise<RegistryResponse> {
 const App: Component = () => {
     const [libraryID, setLibraryID] = createSignal<string>()
     const [libraryVersion, setLibraryVersion] = createSignal<string>()
+    const [dependencies, setDependencies] = createSignal<LibraryVersion[]>([])
 
     const [library] = createResource(libraryID, fetchLibraryLatest)
     const foundVersion = createMemo(() => {
@@ -86,8 +88,10 @@ const App: Component = () => {
     return (
         <>
             <div class="py-20 text-center flex flex-col items-center">
+                <PackageSelectionStage onDependenciesChange={setDependencies}/>
+
                 <input type="text" class="input input-bordered border-2 input-primary input-lg focus:shadow-2xl" ref={libraryInput}/>
-                <button class="btn btn-primary btn-lg mt-4" onClick={onLookup}>Lookup</button>
+                <button class="btn btn-primary btn-lg mt-4" onClick={onLookup}>Lookup {dependencies().length} dependencies</button>
 
                 <Show when={library.state === 'ready'}>
                     <div class="mt-8">
