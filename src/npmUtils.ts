@@ -34,7 +34,7 @@ interface RegistryResponse {
 export interface LibraryVersion {name: string, version: string}
 
 // Name to exact version to LibraryVersion
-type LoadedCache = Map<string, {
+export type LoadedCache = Map<string, {
     registry: RegistryResponse
     // exact version
     dependedBy: Map<string, Array<LibraryVersion | 'root'>>
@@ -86,7 +86,6 @@ export async function loadDependenciesRecursive(dependent: LibraryVersion | 'roo
             const dependencies = Object.entries(loaded.registry.versions[maxSatisfying].dependencies ?? {})
                 .map(([name, version]) => ({name, version}))
                 .filter(dep => loaded.registry.versions[maxSatisfying].optionalDependencies?.[dep.name] !== dep.version)
-            console.log(dependencies)
             await loadDependenciesRecursive({name: dependency.name, version: maxSatisfying}, dependencies, loadedCache, dependencyListCallback)
         } else {
             existingDependency.push(dependent)

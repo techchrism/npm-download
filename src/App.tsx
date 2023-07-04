@@ -3,6 +3,7 @@ import {createMemo, createResource, createSignal, Show} from 'solid-js'
 import semver from 'semver'
 import {LibraryVersion, loadAllDependencies} from './npmUtils'
 import PackageSelectionStage from './components/PackageSelectionStage'
+import PackageLookupStage from './components/PackageLookupStage'
 
 interface RegistryResponse {
     name: string
@@ -87,21 +88,10 @@ const App: Component = () => {
 
     return (
         <>
-            <div class="py-20 text-center flex flex-col items-center">
+            <div class="py-20 text-center flex flex-col items-center space-y-5">
                 <PackageSelectionStage onDependenciesChange={setDependencies}/>
-
-                <input type="text" class="input input-bordered border-2 input-primary input-lg focus:shadow-2xl" ref={libraryInput}/>
-                <button class="btn btn-primary btn-lg mt-4" onClick={onLookup}>Lookup {dependencies().length} dependencies</button>
-
-                <Show when={library.state === 'ready'}>
-                    <div class="mt-8">
-                        <pre class="text-left break-all max-w-6xl whitespace-pre-wrap">
-                            {JSON.stringify(foundVersion(), null, 4)}
-                        </pre>
-                    </div>
-
-                    <button class="btn btn-success" onclick={loadRecursive}>Load Recursive</button>
-                </Show>
+                <div class="divider"/>
+                <PackageLookupStage packages={dependencies()}/>
             </div>
         </>
 
