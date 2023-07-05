@@ -53,6 +53,26 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
         return optionalVersions
     })
 
+    const postInstallDependencies = createMemo(() => {
+        const postInstallVersions: {
+            library: LibraryVersion
+            from: (LibraryVersion | 'root')[]
+        }[] = []
+
+        const packages = cache().values()
+        for(const pkg of packages) {
+            for(const [version, by] of pkg.dependedBy.entries()) {
+                if(pkg.registry.versions[version].hasInstallScript) {
+                    postInstallVersions.push({
+                        library: {name: pkg.registry.name, version},
+                        from: by
+                    })
+                }
+            }
+        }
+        return postInstallVersions
+    })
+
     const loadExtraDependency = async (pkg: LibraryVersion, dependent: LibraryVersion) => {
         if(loadingOptional() !== undefined) return
         setLoadingOptional(pkg)
@@ -118,6 +138,31 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
                                     </>
                                 )
                             }}/>
+                        </tbody>
+                    </table>
+                </Show>
+
+                <Show when={postInstallDependencies().length > 0}>
+                    <div class="divider"/>
+                    <div class="text-xl font-semibold alert alert-warning">{postInstallDependencies().length} Dependenc{postInstallDependencies().length === 1 ? 'y' : 'ies'} With Post-Install Scripts:</div>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Library</th>
+                            <th>Depended By</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <For each={postInstallDependencies()} children={pkg => {
+                            return (
+                                <>
+                                    <tr>
+                                        <td>{pkg.library.name} {pkg.library.version}</td>
+                                        <td>{pkg.from.map(v => (v === 'root') ? 'input box' : `${v.name} ${v.version}`).join(', ')}</td>
+                                    </tr>
+                                </>
+                            )
+                        }}/>
                         </tbody>
                     </table>
                 </Show>
