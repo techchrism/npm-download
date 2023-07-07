@@ -6,6 +6,7 @@ import semver from 'semver'
 
 export type PackageLookupStageProps = {
     packages: LibraryVersion[]
+    onCacheChange: (cache: LoadedCache) => void
 }
 
 const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
@@ -14,6 +15,8 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
     const [cache, setCache] = createSignal<LoadedCache>(new Map())
 
     const [loadingOptional, setLoadingOptional] = createSignal<LibraryVersion | undefined>(undefined)
+
+    createMemo(() => props.onCacheChange(cache()))
 
     const onClick = async () => {
         if(loading()) return
