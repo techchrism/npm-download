@@ -1,6 +1,6 @@
 import {Component, createSignal, createUniqueId, Show} from 'solid-js'
 import {TbFileUpload} from 'solid-icons/tb'
-import {LibraryVersion} from '../npmUtils'
+import {LibraryVersion} from '../util/npmUtils'
 
 export type PackageSelectionStageProps = {
     onDependenciesChange: (dependencies: LibraryVersion[]) => void

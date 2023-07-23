@@ -1,5 +1,5 @@
 import {Component, createMemo, createSignal, For, Show} from 'solid-js'
-import {LibraryVersion, loadAllDependencies, loadDependenciesRecursive, LoadedCache} from '../npmUtils'
+import {LibraryVersion, loadAllDependencies, loadDependenciesRecursive, LoadedCache} from '../util/npmUtils'
 import {FiSearch} from 'solid-icons/fi'
 import {BsCheckLg} from 'solid-icons/bs'
 import semver from 'semver'
