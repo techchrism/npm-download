@@ -56,24 +56,28 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
         return optionalVersions
     })
 
-    const postInstallDependencies = createMemo(() => {
-        const postInstallVersions: {
+    const flatCache = createMemo(() => {
+        const packageVersions: {
             library: LibraryVersion
             from: (LibraryVersion | 'root')[]
+            hasInstallScript: boolean
         }[] = []
 
         const packages = cache().values()
         for(const pkg of packages) {
             for(const [version, by] of pkg.dependedBy.entries()) {
-                if(pkg.registry.versions[version].hasInstallScript) {
-                    postInstallVersions.push({
-                        library: {name: pkg.registry.name, version},
-                        from: by
-                    })
-                }
+                packageVersions.push({
+                    library: {name: pkg.registry.name, version},
+                    from: by,
+                    hasInstallScript: pkg.registry.versions[version].hasInstallScript
+                })
             }
         }
-        return postInstallVersions
+        return packageVersions
+    })
+
+    const postInstallDependencies = createMemo(() => {
+        return flatCache().filter(v => v.hasInstallScript)
     })
 
     const loadExtraDependency = async (pkg: LibraryVersion, dependent: LibraryVersion) => {
@@ -98,7 +102,34 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
                 </button>
 
                 <Show when={packagesLoaded() > 0}>
-                    <div class="alert alert-info text-xl">Loaded {packagesLoaded()} package{packagesLoaded() === 1 ? '' : 's'}</div>
+                    <div tabindex="0" class="collapse collapse-arrow border border-info">
+                        <input type="checkbox"/>
+                        <div class="collapse-title text-xl font-medium">
+                            Loaded {packagesLoaded()} package{packagesLoaded() === 1 ? '' : 's'}
+                        </div>
+                        <div class="collapse-content">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Library</th>
+                                    <th>Depended By</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <For each={flatCache()} children={pkg => {
+                                    return (
+                                        <>
+                                            <tr>
+                                                <td>{pkg.library.name} {pkg.library.version}</td>
+                                                <td>{pkg.from.map(v => (v === 'root') ? 'input box' : `${v.name} ${v.version}`).join(', ')}</td>
+                                            </tr>
+                                        </>
+                                    )
+                                }}/>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </Show>
 
                 <Show when={optionalDependencies().length > 0}>
