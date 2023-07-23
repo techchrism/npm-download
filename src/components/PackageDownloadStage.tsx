@@ -62,7 +62,9 @@ const PackageDownloadStage: Component<PackageDownloadStageProps> = (props) => {
             const tarball = registry.versions[pkg.version].dist.tarball
 
             const tarballResponse = await fetch(tarball)
-            await zipWriter.add(`${pkg.name}/registry.json`, new TextReader(JSON.stringify(registry)))
+            try {
+                await zipWriter.add(`${pkg.name}/registry.json`, new TextReader(JSON.stringify(registry)))
+            } catch(ignored) {}
             await zipWriter.add(`${pkg.name}/versions/${pkg.version}.tgz`, tarballResponse.body)
 
             setProgress(progress() + 1)
