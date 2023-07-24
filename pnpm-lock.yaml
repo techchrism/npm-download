@@ -43,6 +43,9 @@ devDependencies:
   vite:
     specifier: ^4.3.9
     version: 4.3.9
+  vite-plugin-singlefile:
+    specifier: ^0.13.5
+    version: 0.13.5(rollup@3.25.1)(vite@4.3.9)
   vite-plugin-solid:
     specifier: ^2.7.0
     version: 2.7.0(solid-js@1.7.6)(vite@4.3.9)
@@ -1628,6 +1631,18 @@ packages:
 
   /validate-html-nesting@1.2.2:
     resolution: {integrity: sha512-hGdgQozCsQJMyfK5urgFcWEqsSSrK63Awe0t/IMR0bZ0QMtnuaiHzThW81guu3qx9abLi99NEuiaN6P9gVYsNg==}
+    dev: true
+
+  /vite-plugin-singlefile@0.13.5(rollup@3.25.1)(vite@4.3.9):
+    resolution: {integrity: sha512-y/aRGh8qHmw2f1IhaI/C6PJAaov47ESYDvUv1am1YHMhpY+19B5k5Odp8P+tgs+zhfvak6QB1ykrALQErEAo7g==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    peerDependencies:
+      rollup: '>=2.79.0'
+      vite: '>=3.2.0'
+    dependencies:
+      micromatch: 4.0.5
+      rollup: 3.25.1
+      vite: 4.3.9
     dev: true
 
   /vite-plugin-solid@2.7.0(solid-js@1.7.6)(vite@4.3.9):
