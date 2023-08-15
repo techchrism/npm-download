@@ -25,7 +25,9 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
 
         setCache(new Map())
         setPackagesLoaded(0)
-        const newCache = await loadAllDependencies(props.packages, list => setPackagesLoaded(list.length))
+        const newCache = await loadAllDependencies(props.packages, {
+            dependencyListCallback: list => setPackagesLoaded(list.length)
+        })
         setCache(newCache)
 
         setLoading(false)
@@ -84,7 +86,9 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
         if(loadingOptional() !== undefined) return
         setLoadingOptional(pkg)
         const cacheCopy = new Map(cache())
-        await loadDependenciesRecursive(dependent, [pkg], cacheCopy, list => setPackagesLoaded(list.length))
+        await loadDependenciesRecursive(dependent, [pkg], cacheCopy, {
+            dependencyListCallback: list => setPackagesLoaded(list.length)
+        })
         setCache(cacheCopy)
         setLoadingOptional(undefined)
     }
