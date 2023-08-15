@@ -66,30 +66,38 @@ export async function loadDependenciesRecursive(dependent: LibraryVersion | 'roo
             }
         })()
 
-        const maxSatisfying = semver.maxSatisfying(Object.values(loaded.registry.versions).map(v => v.version), dependency.version)
-        const existingDependency = loaded.dependedBy.get(maxSatisfying)
-        if(existingDependency === undefined) {
-            loaded.dependedBy.set(maxSatisfying, [dependent])
+        const versionsToDownload = new Set<string>()
+        // Add both the latest satisfying version and the exact version
+        // This is done because npm attempts to download the exact version
+        versionsToDownload.add(semver.maxSatisfying(Object.values(loaded.registry.versions).map(v => v.version), dependency.version))
+        versionsToDownload.add(semver.clean(dependency.version))
 
-            // Call callback
-            if(dependencyListCallback !== undefined) {
-                const dependencies = []
-                for(const [name, data] of loadedCache.entries()) {
-                    for(const [version, dependedBy] of data.dependedBy.entries()) {
-                        dependencies.push({name, version})
+        for(const version of versionsToDownload) {
+            const existingDependency = loaded.dependedBy.get(version)
+            if(existingDependency === undefined) {
+                loaded.dependedBy.set(version, [dependent])
+
+                // Call callback
+                if(dependencyListCallback !== undefined) {
+                    const dependencies = []
+                    for(const [name, data] of loadedCache.entries()) {
+                        for(const [version, dependedBy] of data.dependedBy.entries()) {
+                            dependencies.push({name, version})
+                        }
                     }
+                    dependencyListCallback(dependencies)
                 }
-                dependencyListCallback(dependencies)
-            }
 
-            // Load dependencies of this new version, excluding optional dependencies
-            const dependencies = Object.entries(loaded.registry.versions[maxSatisfying].dependencies ?? {})
-                .map(([name, version]) => ({name, version}))
-                .filter(dep => loaded.registry.versions[maxSatisfying].optionalDependencies?.[dep.name] !== dep.version)
-            await loadDependenciesRecursive({name: dependency.name, version: maxSatisfying}, dependencies, loadedCache, dependencyListCallback)
-        } else {
-            existingDependency.push(dependent)
+                // Load dependencies of this new version, excluding optional dependencies
+                const dependencies = Object.entries(loaded.registry.versions[version].dependencies ?? {})
+                    .map(([name, version]) => ({name, version}))
+                    .filter(dep => loaded.registry.versions[version].optionalDependencies?.[dep.name] !== dep.version)
+                await loadDependenciesRecursive({name: dependency.name, version: version}, dependencies, loadedCache, dependencyListCallback)
+            } else {
+                existingDependency.push(dependent)
+            }
         }
+
     }
 }
 
