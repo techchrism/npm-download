@@ -13,6 +13,7 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
     const [packagesLoaded, setPackagesLoaded] = createSignal(0)
     const [loading, setLoading] = createSignal(false)
     const [cache, setCache] = createSignal<LoadedCache>(new Map())
+    const [errors, setErrors] = createSignal<{error: Error, lib: LibraryVersion}[]>([])
 
     const [loadingOptional, setLoadingOptional] = createSignal<LibraryVersion | undefined>(undefined)
 
@@ -25,8 +26,10 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
 
         setCache(new Map())
         setPackagesLoaded(0)
+        setErrors([])
         const newCache = await loadAllDependencies(props.packages, {
-            dependencyListCallback: list => setPackagesLoaded(list.length)
+            dependencyListCallback: list => setPackagesLoaded(list.length),
+            errorCallback: (error, lib) => setErrors([...errors(), {error, lib}])
         })
         setCache(newCache)
 
@@ -87,7 +90,8 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
         setLoadingOptional(pkg)
         const cacheCopy = new Map(cache())
         await loadDependenciesRecursive(dependent, [pkg], cacheCopy, {
-            dependencyListCallback: list => setPackagesLoaded(list.length)
+            dependencyListCallback: list => setPackagesLoaded(list.length),
+            errorCallback: (error, lib) => setErrors([...errors(), {error, lib}])
         })
         setCache(cacheCopy)
         setLoadingOptional(undefined)
@@ -104,6 +108,17 @@ const PackageLookupStage: Component<PackageLookupStageProps> = (props) => {
                     </Show>
                     Lookup {props.packages.length} dependenc{props.packages.length === 1 ? 'y' : 'ies'}
                 </button>
+
+                <Show when={errors().length > 0}>
+                    <div class="alert alert-error block">
+                        <div class="text-xl font-semibold">Errors</div>
+                        <ul class="list-disc list-inside block">
+                            <For each={errors()}>{err => (
+                                <li>{err.lib.name} {err.lib.version} - {err.error.message}</li>
+                            )}</For>
+                        </ul>
+                    </div>
+                </Show>
 
                 <Show when={packagesLoaded() > 0}>
                     <div tabindex="0" class="collapse collapse-arrow border border-info">
