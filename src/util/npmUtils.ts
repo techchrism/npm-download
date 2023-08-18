@@ -80,6 +80,8 @@ export async function loadDependenciesRecursive(dependent: LibraryVersion | 'roo
             if(rawVersion !== undefined) versionsToDownload.add(rawVersion)
 
             for (const version of versionsToDownload) {
+                if(!loaded.registry.versions.hasOwnProperty(version)) continue
+
                 const existingDependency = loaded.dependedBy.get(version)
                 if (existingDependency === undefined) {
                     loaded.dependedBy.set(version, [dependent])
