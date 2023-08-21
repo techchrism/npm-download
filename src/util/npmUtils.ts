@@ -76,8 +76,9 @@ export async function loadDependenciesRecursive(dependent: LibraryVersion | 'roo
             // Add both the latest satisfying version and the exact version
             // This is done because npm attempts to download the exact version
             versionsToDownload.add(semver.maxSatisfying(Object.values(loaded.registry.versions).map(v => v.version), dependency.version))
-            const rawVersion = semver.coerce(dependency.version)?.raw
-            if(rawVersion !== undefined) versionsToDownload.add(rawVersion)
+            //TODO make this option a checkbox
+            //const rawVersion = semver.coerce(dependency.version)?.raw
+            //if(rawVersion !== undefined) versionsToDownload.add(rawVersion)
 
             for (const version of versionsToDownload) {
                 if(!loaded.registry.versions.hasOwnProperty(version)) continue
@@ -98,7 +99,10 @@ export async function loadDependenciesRecursive(dependent: LibraryVersion | 'roo
                     }
 
                     // Load dependencies of this new version, excluding optional dependencies
-                    const dependencies = Object.entries(loaded.registry.versions[version].dependencies ?? {})
+                    const dependencies = [
+                            ...Object.entries(loaded.registry.versions[version].dependencies ?? {}),
+                            ...Object.entries(loaded.registry.versions[version].peerDependencies ?? {})
+                        ]
                         .map(([name, version]) => ({name, version}))
                         .filter(dep => loaded.registry.versions[version].optionalDependencies?.[dep.name] !== dep.version)
                     await loadDependenciesRecursive({
